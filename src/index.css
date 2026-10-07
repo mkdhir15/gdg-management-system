@@ -1,0 +1,146 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@layer base {
+  :root {
+    --font-sans: 'Google Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    --color-google-blue: #1a73e8;
+    --color-google-blue-hover: #174ea6;
+    --color-google-blue-bg: #e8f0fe;
+    --color-google-red: #d93025;
+    --color-google-red-bg: #fce8e6;
+    --color-google-yellow: #f29900;
+    --color-google-yellow-bg: #fef7e0;
+    --color-google-green: #1e8e3e;
+    --color-google-green-bg: #e6f4ea;
+    
+    --color-surface-bg: #f8fafd;
+    --color-surface-card: #ffffff;
+    --color-border-subtle: #e2e8f0;
+    --color-text-primary: #1f2937;
+    --color-text-secondary: #4b5563;
+    --color-text-muted: #6b7280;
+  }
+
+  .dark {
+    --color-google-blue: #8ab4f8;
+    --color-google-blue-hover: #aecbfa;
+    --color-google-blue-bg: #1e293b;
+    --color-google-red: #f28b82;
+    --color-google-red-bg: #3c2423;
+    --color-google-yellow: #fdd663;
+    --color-google-yellow-bg: #3c3218;
+    --color-google-green: #81c995;
+    --color-google-green-bg: #1c3829;
+
+    --color-surface-bg: #0b0f17;
+    --color-surface-card: #131b2a;
+    --color-border-subtle: #1e293b;
+    --color-text-primary: #f8fafc;
+    --color-text-secondary: #94a3b8;
+    --color-text-muted: #64748b;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    font-family: var(--font-sans);
+    background-color: var(--color-surface-bg);
+    color: var(--color-text-primary);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    margin: 0;
+    padding: 0;
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+
+  .dark body {
+    background-color: #0b0f17;
+    color: #f8fafc;
+  }
+}
+
+/* Custom Google Cloud / Material Elevation */
+.g-card {
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 3px 0 rgba(60, 64, 67, 0.08), 0 1px 2px 0 rgba(60, 64, 67, 0.04);
+  transition: all 0.2s ease-in-out;
+}
+
+.dark .g-card {
+  background-color: #131b2a;
+  border-color: #1e293b;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3);
+}
+
+.g-card:hover {
+  border-color: #d1d5db;
+  box-shadow: 0 4px 6px -1px rgba(60, 64, 67, 0.1), 0 2px 4px -1px rgba(60, 64, 67, 0.06);
+}
+
+.dark .g-card:hover {
+  border-color: #334155;
+  box-shadow: 0 4px 8px -1px rgba(0, 0, 0, 0.4);
+}
+
+.g-card-interactive {
+  cursor: pointer;
+}
+
+.g-card-interactive:hover {
+  transform: translateY(-2px);
+  border-color: #bfdbfe;
+  box-shadow: 0 8px 16px -2px rgba(26, 115, 232, 0.08), 0 4px 6px -2px rgba(60, 64, 67, 0.05);
+}
+
+.dark .g-card-interactive:hover {
+  border-color: #1d4ed8;
+  box-shadow: 0 8px 16px -2px rgba(0, 0, 0, 0.5);
+}
+
+/* Custom Scrollbar for sleek enterprise tables and panels */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+.dark ::-webkit-scrollbar-track {
+  background: #0f172a;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #334155;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #475569;
+}
+
+/* Smooth Focus Rings for Accessibility */
+*:focus-visible {
+  outline: 2px solid #1a73e8;
+  outline-offset: 2px;
+}
+
+.dark *:focus-visible {
+  outline: 2px solid #60a5fa;
+}
