@@ -11,12 +11,6 @@ import {
   ArrowLeft,
   CheckCircle2,
   AlertCircle,
-  Shield,
-  Layers,
-  GraduationCap,
-  Sparkles,
-  ChevronDown,
-  ChevronUp,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { MOCK_ROLES, ALL_ACCOUNTS_MAP, GDG_ADMIN } from '../../services/mockData';
@@ -49,9 +43,6 @@ export const Login = () => {
   const [errors, setErrors] = useState({});
   const [statusFeedback, setStatusFeedback] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  // Optional Developer Presets Drawer
-  const [showDevPresets, setShowDevPresets] = useState(false);
 
   const clearErrors = () => {
     setErrors({});
@@ -95,9 +86,9 @@ export const Login = () => {
     setIsSubmitting(true);
 
     try {
-      // Find matching mock account if available, or fallback to Admin for prototype preview
+      const lowerEmail = loginEmail.trim().toLowerCase();
       const matchingAccount = Object.values(ALL_ACCOUNTS_MAP).find(
-        (acc) => acc.email.toLowerCase() === loginEmail.trim().toLowerCase()
+        (acc) => acc?.email?.toLowerCase() === lowerEmail
       );
 
       const targetAccount = matchingAccount || GDG_ADMIN;
@@ -130,14 +121,14 @@ export const Login = () => {
     } catch {
       setStatusFeedback({
         type: 'error',
-        message: 'Authentication failed. Please verify credentials or select a development persona.',
+        message: 'Authentication failed. Please verify institutional credentials.',
       });
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  // Sign Up Submit Handler (New volunteer/member)
+  // Sign Up Submit Handler (New volunteer/member - treated as PENDING)
   const handleSignupSubmit = (e) => {
     e.preventDefault();
     clearErrors();
@@ -167,26 +158,14 @@ export const Login = () => {
 
     setIsSubmitting(true);
 
-    // Frontend validation succeeded
+    // Frontend validation succeeded - status is PENDING
     setTimeout(() => {
       setIsSubmitting(false);
       setStatusFeedback({
         type: 'info',
-        message: `Volunteer registration payload verified for ${signupFirstName} ${signupLastName} (${signupEmail}). Ready for Django REST Framework integration (POST /api/auth/register/). Account creation backend is not yet active.`,
+        message: `Volunteer registration payload verified for ${signupFirstName} ${signupLastName} (${signupEmail}). Account status is set to PENDING awaiting administrator approval. Ready for Django REST Framework integration (POST /api/auth/register/).`,
       });
     }, 600);
-  };
-
-  // Apply quick preset for testing
-  const applyPreset = (presetRole, email, name) => {
-    setActiveTab('login');
-    setLoginEmail(email);
-    setLoginPassword('••••••••••••');
-    clearErrors();
-    setStatusFeedback({
-      type: 'info',
-      message: `Loaded development preset: ${name} (${presetRole}). Click "Log In" to access this dashboard.`,
-    });
   };
 
   return (
@@ -596,74 +575,6 @@ export const Login = () => {
               </motion.form>
             )}
           </AnimatePresence>
-
-          {/* Development Role Presets (Discreet collapsible for testing role dashboards) */}
-          <div className="pt-4 border-t border-white/10">
-            <button
-              type="button"
-              onClick={() => setShowDevPresets(!showDevPresets)}
-              className="w-full py-1.5 flex items-center justify-between text-[11px] text-zinc-400 hover:text-zinc-300 font-medium cursor-pointer"
-            >
-              <span>Development Role Presets (Testing)</span>
-              {showDevPresets ? (
-                <ChevronUp className="w-3.5 h-3.5" />
-              ) : (
-                <ChevronDown className="w-3.5 h-3.5" />
-              )}
-            </button>
-
-            {showDevPresets && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                className="mt-2 grid grid-cols-2 sm:grid-cols-4 gap-2 text-left"
-              >
-                <button
-                  type="button"
-                  onClick={() => applyPreset(MOCK_ROLES.ADMIN, 'admin@mmumullana.org', 'Admin')}
-                  className="p-2 rounded-lg bg-[#141414] hover:bg-[#1e1e1e] border border-white/10 text-left transition-colors cursor-pointer"
-                >
-                  <div className="flex items-center gap-1.5 text-blue-400 font-bold text-[11px]">
-                    <Shield className="w-3 h-3" /> Admin
-                  </div>
-                  <div className="text-[10px] text-zinc-400 truncate">Governance</div>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => applyPreset(MOCK_ROLES.LEAD, 'lead@mmumullana.org', 'Lead')}
-                  className="p-2 rounded-lg bg-[#141414] hover:bg-[#1e1e1e] border border-white/10 text-left transition-colors cursor-pointer"
-                >
-                  <div className="flex items-center gap-1.5 text-amber-400 font-bold text-[11px]">
-                    <Layers className="w-3 h-3" /> Lead
-                  </div>
-                  <div className="text-[10px] text-zinc-400 truncate">Programs</div>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => applyPreset(MOCK_ROLES.MENTOR, 'harsh.gupta@mmumullana.org', 'Harsh')}
-                  className="p-2 rounded-lg bg-[#141414] hover:bg-[#1e1e1e] border border-white/10 text-left transition-colors cursor-pointer"
-                >
-                  <div className="flex items-center gap-1.5 text-emerald-400 font-bold text-[11px]">
-                    <GraduationCap className="w-3 h-3" /> Mentor
-                  </div>
-                  <div className="text-[10px] text-zinc-400 truncate">Web Track</div>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => applyPreset(MOCK_ROLES.MENTEE, 'mohit.kumar@mmumullana.org', 'Mohit')}
-                  className="p-2 rounded-lg bg-[#141414] hover:bg-[#1e1e1e] border border-white/10 text-left transition-colors cursor-pointer"
-                >
-                  <div className="flex items-center gap-1.5 text-purple-400 font-bold text-[11px]">
-                    <Sparkles className="w-3 h-3" /> Mentee
-                  </div>
-                  <div className="text-[10px] text-zinc-400 truncate">Student Dev</div>
-                </button>
-              </motion.div>
-            )}
-          </div>
         </div>
       </main>
     </div>

@@ -2,14 +2,17 @@ import React from 'react';
 import { Card } from '../common/Card';
 import { Badge } from '../common/Badge';
 import { Mail, GraduationCap, Sparkles, Award } from 'lucide-react';
+import { ProfileAvatar } from '../common/ProfileAvatar';
 
 export const UserCard = ({ user }) => {
   return (
     <Card className="p-5 flex flex-col items-center text-center hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-150 border-slate-200 dark:border-slate-800">
-      <img
-        src={user.avatar}
-        alt={user.name}
-        className="w-16 h-16 rounded-full object-cover ring-4 ring-slate-100 dark:ring-slate-800 mb-3 shadow-xs"
+      <ProfileAvatar
+        src={user.profileImage || user.avatar}
+        name={user.name}
+        role={user.role}
+        size="lg"
+        className="ring-4 ring-slate-100 dark:ring-slate-800 mb-3 shadow-xs rounded-full"
       />
       <h3 className="text-base font-bold text-slate-900 dark:text-white leading-tight flex items-center gap-1.5">
         {user.name}

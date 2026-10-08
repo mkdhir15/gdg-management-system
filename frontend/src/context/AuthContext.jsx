@@ -52,6 +52,20 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const updateProfileImage = (imageUrl) => {
+    const updated = authService.updateProfileImage(imageUrl);
+    if (updated) {
+      setCurrentUser({ ...updated });
+    } else if (currentUser) {
+      setCurrentUser((prev) => ({
+        ...prev,
+        profileImage: imageUrl,
+        avatar: imageUrl,
+        profile_image: imageUrl,
+      }));
+    }
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -60,6 +74,7 @@ export const AuthProvider = ({ children }) => {
         login,
         switchRole,
         switchAccount,
+        updateProfileImage,
         logout,
         isLoading,
       }}

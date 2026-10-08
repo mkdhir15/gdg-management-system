@@ -25,6 +25,12 @@ import {
   ALL_ACCOUNTS_MAP,
   CURRENT_USER_PROFILES,
 } from './mockData';
+import {
+  DEV_USERS_LIST,
+  DEV_USERS_MAP,
+  DEV_USERS_BY_EMAIL,
+  DEV_ADMIN,
+} from '../data/devUsers';
 
 const SIMULATE_DELAY_MS = 60;
 
@@ -47,9 +53,15 @@ export const authService = {
     if (accountId && ALL_ACCOUNTS_MAP[accountId.toLowerCase()]) {
       matchedUser = ALL_ACCOUNTS_MAP[accountId.toLowerCase()];
     } else if (email) {
-      const lower = email.toLowerCase();
-      // Match by exact email or name in email
-      matchedUser = ALL_GDG_USERS.find((u) => u.email.toLowerCase() === lower);
+      const lower = email.toLowerCase().trim();
+      // Match development test accounts first when in dev mode
+      if (import.meta.env.DEV && DEV_USERS_BY_EMAIL[lower]) {
+        matchedUser = DEV_USERS_BY_EMAIL[lower];
+      }
+      if (!matchedUser) {
+        // Match by exact email or name in email
+        matchedUser = ALL_GDG_USERS.find((u) => u.email.toLowerCase() === lower);
+      }
       if (!matchedUser) {
         for (const [key, acc] of Object.entries(ALL_ACCOUNTS_MAP)) {
           if (lower.includes(key)) {
@@ -61,11 +73,15 @@ export const authService = {
     }
 
     if (!matchedUser && role) {
-      matchedUser = CURRENT_USER_PROFILES[role];
+      if (import.meta.env.DEV && DEV_USERS_MAP[role]) {
+        matchedUser = DEV_USERS_MAP[role];
+      } else {
+        matchedUser = CURRENT_USER_PROFILES[role];
+      }
     }
 
     if (!matchedUser) {
-      matchedUser = CURRENT_USER_PROFILES.ADMIN;
+      matchedUser = import.meta.env.DEV ? DEV_ADMIN : CURRENT_USER_PROFILES.ADMIN;
     }
 
     // Store in localStorage for session persistence across page refreshes
@@ -96,16 +112,31 @@ export const authService = {
         console.error('Failed to parse auth session', err);
       }
     }
-    // Default fallback to Admin for convenient exploration
-    return CURRENT_USER_PROFILES.ADMIN;
+    // Default fallback in development vs production
+    return import.meta.env.DEV ? DEV_ADMIN : CURRENT_USER_PROFILES.ADMIN;
   },
 
   /**
-   * Switch directly to any of the 19 accounts (Admin, Lead, 6 Mentors, 11 Mentees)
+   * Direct developer preview login (Development Only)
+   */
+  loginAsDevUser(roleOrKey) {
+    if (!import.meta.env.DEV) return null;
+    const roleKey = (roleOrKey || '').toUpperCase();
+    const user = DEV_USERS_MAP[roleKey] || DEV_ADMIN;
+    const authSession = {
+      token: 'dev-preview-token-' + Date.now(),
+      user,
+    };
+    localStorage.setItem('gdg_auth_session', JSON.stringify(authSession));
+    return user;
+  },
+
+  /**
+   * Switch directly to any of the accounts
    */
   switchAccount(accountKeyOrId) {
     const key = (accountKeyOrId || '').toLowerCase();
-    const profile = ALL_ACCOUNTS_MAP[key] || CURRENT_USER_PROFILES.ADMIN;
+    const profile = ALL_ACCOUNTS_MAP[key] || (import.meta.env.DEV ? DEV_ADMIN : CURRENT_USER_PROFILES.ADMIN);
     const authSession = {
       token: 'mock-jwt-token-' + Date.now(),
       user: profile,
@@ -115,16 +146,45 @@ export const authService = {
   },
 
   /**
-   * Quick role-switching fallback
+   * Quick role-switching fallback (Supports Dev Preview Users)
    */
   switchRole(role) {
-    const profile = CURRENT_USER_PROFILES[role] || CURRENT_USER_PROFILES.ADMIN;
+    let profile = null;
+    if (import.meta.env.DEV && DEV_USERS_MAP[role]) {
+      profile = DEV_USERS_MAP[role];
+    } else {
+      profile = CURRENT_USER_PROFILES[role] || CURRENT_USER_PROFILES.ADMIN;
+    }
     const authSession = {
       token: 'mock-jwt-token-' + Date.now(),
       user: profile,
     };
     localStorage.setItem('gdg_auth_session', JSON.stringify(authSession));
     return profile;
+  },
+
+  /**
+   * Updates profile image for currently authenticated user
+   * Future DRF endpoint: PATCH /api/v1/users/me/
+   */
+  updateProfileImage(imageUrl) {
+    const raw = localStorage.getItem('gdg_auth_session');
+    let updatedUser = null;
+    if (raw) {
+      try {
+        const parsed = JSON.parse(raw);
+        if (parsed?.user) {
+          parsed.user.profileImage = imageUrl;
+          parsed.user.avatar = imageUrl;
+          parsed.user.profile_image = imageUrl;
+          localStorage.setItem('gdg_auth_session', JSON.stringify(parsed));
+          updatedUser = parsed.user;
+        }
+      } catch (err) {
+        console.error('Failed to update profile image in session', err);
+      }
+    }
+    return updatedUser;
   },
 
   /**
@@ -198,7 +258,11 @@ export const userService = {
     await delay();
     let list = [...GDG_MENTEES];
     if (filters.mentorId) {
-      list = list.filter((m) => m.mentorId === filters.mentorId);
+      if (filters.mentorId === 'dev-mentor') {
+        list = list.filter((m) => m.mentorId === 'mentor-harsh' || m.domain === 'Web Development');
+      } else {
+        list = list.filter((m) => m.mentorId === filters.mentorId);
+      }
     }
     if (filters.domain) {
       list = list.filter((m) => m.domain === filters.domain);

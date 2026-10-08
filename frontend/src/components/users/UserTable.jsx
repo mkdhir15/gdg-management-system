@@ -2,6 +2,7 @@ import React from 'react';
 import { Badge } from '../common/Badge';
 import { Mail, Calendar, UserCheck } from 'lucide-react';
 import { MOCK_ROLES } from '../../services/mockData';
+import { ProfileAvatar } from '../common/ProfileAvatar';
 
 const ROLE_BADGE = {
   [MOCK_ROLES.ADMIN]: { variant: 'blue', text: 'Admin' },

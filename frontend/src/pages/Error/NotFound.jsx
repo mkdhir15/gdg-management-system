@@ -1,68 +1,169 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
-import { FileQuestion, ArrowLeft, Home, ShieldAlert } from 'lucide-react';
-import { Button } from '../../components/common/Button';
-import { MOCK_ROLES } from '../../data/gdgData';
+import React, { useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { motion } from 'motion/react';
+import { ArrowLeft, Home, Compass } from 'lucide-react';
+import gdgLogo from '../../assets/gdgmmdu-logo.jpg';
 
 export const NotFound = () => {
-  const navigate = useNavigate();
-  const { role, currentUser } = useAuth();
-
-  const getDashboardRoute = () => {
-    switch (role) {
-      case MOCK_ROLES.ADMIN:
-        return '/admin/dashboard';
-      case MOCK_ROLES.LEAD:
-        return '/lead/dashboard';
-      case MOCK_ROLES.MENTOR:
-        return '/mentor/dashboard';
-      case MOCK_ROLES.MENTEE:
-        return '/mentee/dashboard';
-      default:
-        return '/login';
-    }
-  };
+  // Update document title for accessibility & context
+  useEffect(() => {
+    document.title = '404 - Page Not Found | GDGoC MMDU Management System';
+  }, []);
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-[#0b0f19] flex items-center justify-center p-4">
-      <div className="max-w-md w-full text-center bg-white dark:bg-[#131b2a] rounded-2xl border border-slate-200 dark:border-slate-800 p-8 shadow-xl">
-        <div className="w-16 h-16 rounded-2xl bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center mx-auto mb-4 border border-blue-100 dark:border-blue-800">
-          <FileQuestion className="w-8 h-8" />
+    <div className="min-h-screen w-full bg-[#050505] text-white flex flex-col justify-between relative overflow-hidden selection:bg-[#4285F4]/30">
+      {/* ========================================================================= */}
+      {/* 1. TOP MINIMAL NAVIGATION */}
+      {/* ========================================================================= */}
+      <header className="relative z-20 w-full max-w-7xl mx-auto px-5 sm:px-8 pt-6 sm:pt-8 flex items-center justify-between">
+        {/* Top-Left: GDGoC MMDU Management System Brand */}
+        <Link
+          to="/"
+          className="inline-flex items-center gap-3 group transition-transform active:scale-95"
+          aria-label="Return to GDGoC MMDU Home"
+        >
+          <img
+            src={gdgLogo}
+            alt="GDGoC MMDU Logo"
+            className="h-8 sm:h-9 w-auto object-contain rounded-md border border-white/10"
+          />
+          <div className="text-left">
+            <div className="text-xs sm:text-sm font-bold tracking-tight text-white flex items-center gap-1.5">
+              <span>GDGoC MMDU</span>
+              <span className="w-1.5 h-1.5 rounded-full bg-[#4285F4]" />
+            </div>
+            <div className="text-[10px] sm:text-[11px] text-zinc-400 font-medium leading-none">
+              Management System
+            </div>
+          </div>
+        </Link>
+
+        {/* Top-Right: Home Navigation */}
+        <Link
+          to="/"
+          className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-medium text-zinc-300 hover:text-white transition-all shadow-xs"
+        >
+          <Home className="w-3.5 h-3.5 text-zinc-400" />
+          <span className="hidden sm:inline">Home</span>
+        </Link>
+      </header>
+
+      {/* ========================================================================= */}
+      {/* 2. CENTER CONTENT & ANIMATED VISUALS */}
+      {/* ========================================================================= */}
+      <main className="relative z-10 flex-1 flex flex-col items-center justify-center px-4 sm:px-6 my-auto text-center">
+        {/* Subtle Ambient GDG Glow Lights */}
+        <div
+          className="absolute w-72 h-72 sm:w-96 sm:h-96 rounded-full bg-[#4285F4]/10 blur-3xl pointer-events-none -translate-x-1/3 -translate-y-1/4"
+          aria-hidden="true"
+        />
+        <div
+          className="absolute w-64 h-64 sm:w-80 sm:h-80 rounded-full bg-[#EA4335]/10 blur-3xl pointer-events-none translate-x-1/3 translate-y-1/4"
+          aria-hidden="true"
+        />
+
+        {/* Abstract Connected Community / System Nodes (Subtle SVG Overlay) */}
+        <div
+          className="absolute inset-0 max-w-4xl mx-auto flex items-center justify-center pointer-events-none opacity-40 select-none"
+          aria-hidden="true"
+        >
+          <svg
+            className="w-full h-full max-h-[460px]"
+            viewBox="0 0 800 400"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            {/* Soft Interconnecting Vectors */}
+            <path
+              d="M 160 200 Q 300 120 400 200 T 640 200"
+              stroke="white"
+              strokeOpacity="0.08"
+              strokeWidth="1.5"
+              strokeDasharray="4 4"
+            />
+            <path
+              d="M 220 260 Q 400 320 580 260"
+              stroke="white"
+              strokeOpacity="0.06"
+              strokeWidth="1"
+            />
+
+            {/* Subtle GDG-Color Accent Nodes */}
+            <circle cx="200" cy="160" r="3.5" fill="#4285F4" fillOpacity="0.7" />
+            <circle cx="280" cy="240" r="2.5" fill="#34A853" fillOpacity="0.6" />
+            <circle cx="520" cy="150" r="3" fill="#FBBC05" fillOpacity="0.7" />
+            <circle cx="600" cy="230" r="3.5" fill="#EA4335" fillOpacity="0.7" />
+          </svg>
         </div>
-        <span className="text-xs font-bold uppercase tracking-widest text-[#1a73e8] dark:text-[#8ab4f8]">
-          Error 404
-        </span>
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-white mt-1">
-          Page Not Found
-        </h1>
-        <p className="text-xs text-slate-500 dark:text-slate-400 mt-2 leading-relaxed">
-          The page or route you are attempting to access does not exist or has been relocated within the GDG Management System.
+
+        {/* Large Animated Faded 404 in Background */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{
+            opacity: [0.12, 0.17, 0.12],
+            y: [-4, 4, -4],
+            scale: 1,
+          }}
+          transition={{
+            duration: 7,
+            repeat: Infinity,
+            ease: 'easeInOut',
+          }}
+          className="relative select-none pointer-events-none"
+          aria-hidden="true"
+        >
+          <span className="text-[26vw] sm:text-[22vw] lg:text-[20vw] font-black leading-none tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-white/20 via-white/8 to-transparent">
+            404
+          </span>
+
+          {/* Micro GDG Gradient Under-Glow */}
+          <div className="absolute inset-x-0 bottom-6 sm:bottom-10 h-1.5 max-w-xs mx-auto rounded-full bg-gradient-to-r from-[#4285F4] via-[#EA4335] via-[#FBBC05] to-[#34A853] opacity-30 blur-xs" />
+        </motion.div>
+
+        {/* Foreground Error Messaging (Lower-Center Area) */}
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.35, delay: 0.1 }}
+          className="relative z-10 max-w-md mx-auto -mt-10 sm:-mt-16 space-y-4"
+        >
+          {/* Status Badge */}
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-zinc-300 text-xs font-mono tracking-wide shadow-xs">
+            <span className="w-2 h-2 rounded-full bg-[#EA4335] animate-pulse" />
+            <span>404 • SYSTEM ROUTE MISSING</span>
+          </div>
+
+          {/* Primary Heading */}
+          <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-white leading-tight">
+            Page not found
+          </h1>
+
+          {/* Supporting Text */}
+          <p className="text-sm sm:text-base text-zinc-400 font-normal leading-relaxed">
+            The page you&apos;re looking for doesn&apos;t exist or may have been moved.
+          </p>
+
+          {/* Primary Call to Action */}
+          <div className="pt-3 flex justify-center">
+            <Link
+              to="/"
+              className="inline-flex items-center gap-2.5 px-6 py-3 rounded-full bg-[#4285F4] hover:bg-[#1a73e8] text-white text-sm font-semibold shadow-lg shadow-[#4285F4]/20 hover:shadow-[#4285F4]/35 transition-all active:scale-95 cursor-pointer"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span>Back to Home</span>
+            </Link>
+          </div>
+        </motion.div>
+      </main>
+
+      {/* ========================================================================= */}
+      {/* 3. MINIMAL FOOTER ATTRIBUTION */}
+      {/* ========================================================================= */}
+      <footer className="relative z-20 w-full py-6 px-4 text-center border-t border-white/5">
+        <p className="text-xs text-zinc-400 font-medium">
+          GDGoC MMDU Management System • Maharishi Markandeshwar (Deemed to be University)
         </p>
-
-        <div className="mt-6 flex flex-col sm:flex-row gap-2.5 justify-center">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => navigate(-1)}
-            icon={ArrowLeft}
-          >
-            Go Back
-          </Button>
-          <Button
-            variant="primary"
-            size="sm"
-            onClick={() => navigate(getDashboardRoute())}
-            icon={Home}
-          >
-            Return to Dashboard
-          </Button>
-        </div>
-
-        <div className="mt-8 pt-4 border-t border-slate-100 dark:border-slate-800 text-[11px] text-slate-400">
-          GDG on Campus MMDU • Internal Operations Portal
-        </div>
-      </div>
+      </footer>
     </div>
   );
 };

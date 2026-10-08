@@ -13,6 +13,7 @@ import {
   HelpCircle,
 } from 'lucide-react';
 import { MOCK_ROLES } from '../../data/gdgData';
+import { ProfileAvatar } from '../common/ProfileAvatar';
 
 export const UserMenu = () => {
   const { currentUser, role, switchRole, logout } = useAuth();
@@ -57,10 +58,11 @@ export const UserMenu = () => {
         aria-label="User account menu"
         aria-expanded={isOpen}
       >
-        <img
-          src={currentUser?.avatar}
-          alt={currentUser?.name}
-          className="w-8 h-8 rounded-full object-cover ring-2 ring-slate-200 dark:ring-slate-700"
+        <ProfileAvatar
+          src={currentUser?.profileImage || currentUser?.avatar}
+          name={currentUser?.name}
+          size="sm"
+          className="ring-2 ring-slate-200 dark:ring-slate-700 rounded-full"
         />
         <div className="hidden md:block text-left">
           <p className="text-xs font-semibold text-slate-800 dark:text-slate-200 leading-tight">

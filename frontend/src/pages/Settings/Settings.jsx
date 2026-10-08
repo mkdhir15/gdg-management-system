@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
 import { useToast } from '../../context/ToastContext';
@@ -13,12 +13,16 @@ import {
   Smartphone,
   Save,
   Info,
+  Camera,
+  UploadCloud,
+  Trash2,
 } from 'lucide-react';
 import { Card, CardHeader, CardBody } from '../../components/common/Card';
 import { Button } from '../../components/common/Button';
+import { ProfileAvatar } from '../../components/common/ProfileAvatar';
 
 export const Settings = () => {
-  const { currentUser, role } = useAuth();
+  const { currentUser, role, updateProfileImage } = useAuth();
   const { isDarkMode, toggleTheme } = useTheme();
   const { toast } = useToast();
 
@@ -27,6 +31,58 @@ export const Settings = () => {
   const [soundEnabled, setSoundEnabled] = useState(false);
   const [density, setDensity] = useState('comfortable'); // 'comfortable' | 'compact'
   const [isSaving, setIsSaving] = useState(false);
+
+  // Mentee / User Profile Photo Upload State
+  const fileInputRef = useRef(null);
+  const [previewImage, setPreviewImage] = useState(
+    currentUser?.profileImage || currentUser?.avatar || null
+  );
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [isPhotoSaving, setIsPhotoSaving] = useState(false);
+
+  useEffect(() => {
+    setPreviewImage(currentUser?.profileImage || currentUser?.avatar || null);
+  }, [currentUser]);
+
+  const handleFileSelect = (e) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (!file.type.startsWith('image/')) {
+        toast.error('Please select an image file (PNG, JPG, or WebP).');
+        return;
+      }
+      setSelectedFile(file);
+      const reader = new FileReader();
+      reader.onload = () => {
+        setPreviewImage(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleSavePhoto = () => {
+    if (!previewImage) return;
+    setIsPhotoSaving(true);
+    setTimeout(() => {
+      if (updateProfileImage) {
+        updateProfileImage(previewImage);
+      }
+      setIsPhotoSaving(false);
+      setSelectedFile(null);
+      toast.success(
+        'Profile photo updated in session! Ready for Django multipart upload endpoint (POST /api/users/profile-image/).'
+      );
+    }, 400);
+  };
+
+  const handleRemovePhoto = () => {
+    setPreviewImage(null);
+    setSelectedFile(null);
+    if (updateProfileImage) {
+      updateProfileImage(null);
+    }
+    toast.info('Profile photo removed. Displaying default neutral avatar.');
+  };
 
   const handleSave = () => {
     setIsSaving(true);
@@ -54,14 +110,81 @@ export const Settings = () => {
           <Card>
             <CardHeader title="Current Session" subtitle="Active Persona" />
             <CardBody className="text-center pt-2">
+              {/* Profile Avatar with Upload Support */}
               <div className="relative inline-block mb-3">
-                <img
-                  src={currentUser?.avatar}
-                  alt={currentUser?.name}
-                  className="w-20 h-20 rounded-full mx-auto object-cover ring-4 ring-slate-100 dark:ring-slate-800"
+                <ProfileAvatar
+                  src={previewImage}
+                  name={currentUser?.name}
+                  role={role}
+                  size="xl"
+                  editable={true}
+                  onImageSelected={(file, previewUrl) => {
+                    setSelectedFile(file);
+                    setPreviewImage(previewUrl);
+                  }}
+                  className="mx-auto ring-4 ring-slate-100 dark:ring-slate-800"
                 />
-                <span className="absolute bottom-0 right-0 w-4 h-4 rounded-full bg-emerald-500 ring-2 ring-white dark:ring-slate-900" />
               </div>
+
+              {/* Mentee / User Image Upload Actions */}
+              <div className="mt-2 mb-4 space-y-2">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp"
+                  onChange={handleFileSelect}
+                  className="hidden"
+                  id="profile-photo-upload"
+                  aria-label="Upload Profile Photo"
+                />
+
+                {selectedFile ? (
+                  <div className="flex items-center justify-center gap-2">
+                    <button
+                      type="button"
+                      onClick={handleSavePhoto}
+                      disabled={isPhotoSaving}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-[#1a73e8] hover:bg-[#1557b0] text-white transition-all shadow-xs disabled:opacity-50 cursor-pointer"
+                    >
+                      <Save className="w-3.5 h-3.5" />
+                      {isPhotoSaving ? 'Saving...' : 'Save Photo'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedFile(null);
+                        setPreviewImage(currentUser?.profileImage || currentUser?.avatar || null);
+                      }}
+                      className="px-2.5 py-1.5 text-xs font-medium rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 transition-all cursor-pointer"
+                    >
+                      <Camera className="w-3.5 h-3.5" />
+                      {previewImage ? 'Change Photo' : 'Add Profile Photo'}
+                    </button>
+                    {previewImage && (
+                      <button
+                        type="button"
+                        onClick={handleRemovePhoto}
+                        className="p-1.5 text-slate-400 hover:text-rose-500 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                        title="Remove Photo"
+                        aria-label="Remove Photo"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
+
               <h3 className="text-base font-bold text-slate-900 dark:text-white">
                 {currentUser?.name}
               </h3>
@@ -71,7 +194,7 @@ export const Settings = () => {
 
               <div className="mt-3 inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-blue-50 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
                 <Shield className="w-3 h-3" />
-                {role} • {currentUser?.domainName || 'Core Team'}
+                {role} • {currentUser?.domain || currentUser?.domainName || 'Core Team'}
               </div>
 
               <div className="mt-5 pt-4 border-t border-slate-100 dark:border-slate-800 text-left text-xs space-y-2 text-slate-600 dark:text-slate-300">
@@ -85,7 +208,9 @@ export const Settings = () => {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-slate-400">Status</span>
-                  <span className="font-semibold text-emerald-600 dark:text-emerald-400">Active</span>
+                  <span className="font-semibold text-emerald-600 dark:text-emerald-400">
+                    {currentUser?.status || 'Active'}
+                  </span>
                 </div>
               </div>
             </CardBody>
